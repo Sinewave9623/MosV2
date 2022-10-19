@@ -72,7 +72,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'MosV2.wsgi.application'
-
+AUTH_USER_MODEL = 'api.CustomerMaster'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases

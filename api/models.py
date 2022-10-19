@@ -1,8 +1,10 @@
 from django.db import models
+from .manager import CustomerUserManager
+from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
 # Create your models here.
-class CustomerMaster(models.Model):
-    user_id=models.BigAutoField(primary_key=True)
+class CustomerMaster(AbstractUser):
+    userId=models.BigAutoField(primary_key=True)
     username = models.CharField(
         ('username'),
         max_length=30,
@@ -13,25 +15,36 @@ class CustomerMaster(models.Model):
         }, 
     )
     group=models.CharField(max_length=10)
-    first_name = models.CharField('first name', max_length=30, blank=True)
-    last_name = models.CharField('last name', max_length=30, blank=True)
+    firstName = models.CharField('first name', max_length=30, blank=True)
+    lastName = models.CharField('last name', max_length=30, blank=True)
     email = models.EmailField(
         verbose_name='email address',
         max_length=40,
+        blank=True,
+
     )
-    phoneNumber = PhoneNumberField(unique = True, null = False, blank = False)
+    phoneNumber = PhoneNumberField(null = True, blank = True)
     dob=models.DateField(blank=True,null=True)
-    photo=models.ImageField(upload_to='customer_photo')
-    address=models.TextField()
+    photo=models.ImageField(upload_to='customer_photo',blank=True,null=True)
+    address=models.TextField(blank=True,null=True)
     active = models.BooleanField(default=False)
-    company_code = models.CharField(max_length=30)
-    sw_customer_id = models.IntegerField(null=True, blank=True)
-    registration_date= models.DateField(null=True, blank=True)
+    companyCode = models.CharField(max_length=30,blank=True,null=True)
+    swCustomerId = models.IntegerField(null=True, blank=True)
+    registrationDate= models.DateField(null=True, blank=True)
     valid_date=models.DateField(null=True, blank=True) 
+
+    objects = CustomerUserManager()
+
+    EMAIL_FIELD = 'email'
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']
+
+    class Meta:
+        verbose_name = ('CustomerMaster')
+        verbose_name_plural = ('CustomerMasters')
 
     def __str__(self):
         return self.group 
-
 
 # ------------------------Member Master
 class MemberMaster(models.Model):

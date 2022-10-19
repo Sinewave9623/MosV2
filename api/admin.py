@@ -1,13 +1,36 @@
 from django.contrib import admin
 from .models import TranSum,CustomerMaster,MemberMaster
+from django.contrib.auth.models import Group,User
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 # Register your models here.
 # admin.site.register(TranSum)
 
+class UserAdmin(BaseUserAdmin):
+    list_display = ('userId','username', 'firstName','lastName','email','phoneNumber','dob',)
+    list_filter =('username', 'firstName','lastName','email','phoneNumber','dob',)
+    fieldsets = (
+        ('User Credentials', {'fields': ('username','password')}),
+        ('Personal info', {'fields': ('firstName','lastName','email','phoneNumber','dob',)}),
+        ('Permissions', {'fields': ('is_active','is_staff')}),
+    )
+    # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
+    # overrides get_fieldsets to use this attribute when creating a user.
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('username', 'firstName','lastName','email','phoneNumber','dob', 'password1', 'password2'),
+        }),
+    )
+    search_fields = ('email',)
+    ordering = ('email',)
+    filter_horizontal = ()
 
+admin.site.register(CustomerMaster, UserAdmin)
+admin.site.unregister(Group)
 
-@admin.register(CustomerMaster)
-class CustomerMaster(admin.ModelAdmin):
-    list_display=['user_id','username','group','first_name','last_name','email','phoneNumber','dob','address','company_code','sw_customer_id','registration_date','valid_date'] 
+# @admin.register(CustomerMaster)
+# class CustomerMaster(admin.ModelAdmin):
+#     list_display=['userId','userName','group','firstName','lastName','email','phoneNumber','dob','address','companyCode','swCustomerId','registrationDate','valid_date'] 
 
 @admin.register(MemberMaster)
 class MemberMasterAdmin(admin.ModelAdmin):
