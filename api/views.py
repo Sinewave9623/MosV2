@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.http import Http404
 from rest_framework.views import APIView
+import pandas as pd
 import requests
 from .serializers import (SavePurchSerializer,RetTransSumSerializer,
 TranSumRetrivesc2Serializer,RetInvSc1serializer,SaveMemberSerializer,RetMemberSerializer,SavecustomerSerializer)
@@ -72,6 +73,7 @@ class MosRetrieveUpdate(generics.RetrieveUpdateAPIView):
     #     return Response({'status':True,'Message': 'You have successfully Deleted'})
  
  # Retrive API Screen No Two
+ 
 class RetriveAPISc2(APIView):
     def get(self, request, format=None):
         # ------------ fetching parameter in  Url
@@ -101,142 +103,42 @@ class RetriveAPISc2(APIView):
         for i in b:
             w=int(i[0])
             varadd=varadd+w   
-       
         # ------------------------- Closing
         closing=varadd+varop
-
-         # ---------------------- Opening total=values(qty*rate)
-        valuesop = TranSum.objects.filter(trDate__lt=start_fy,group=group,code=code,againstType=againstType,part=part).values_list('sVal')
-        val=list(valuesop)
-        opval=0
-        for i in val:
-            w=i[0]
-            opval=opval+w
-        # print('Total opening values---',opval)
-
-            # ---------------------- Addition total=values(qty*rate)
-        valuesad = TranSum.objects.filter(trDate__range=(start_fy,end_fy),group=group,code=code,againstType=againstType,part=part).values_list('sVal')
-        val=list(valuesad)
-        adval=0
-        for i in val:
-            w=i[0]
-            adval=adval+w
-        # print('Total Addition values ---',adval)
-
-         # --------------------- Additions and Opening =Investment Values= values(rate*qty)
-        
-        # opadvals=opval+adval
-        # avgRate=opadvals/closing
-        # invValue=closing*avgRate
-        
-        
-        # print("Avgrate Rate---->",avgRate)
-        # print("Addition---->",varadd)
-        # print("opening---->",varop)
-        # print("Closing----->",closing)
-        # print("Values opeing--->",opval)
-        # print("Values addition--->",adval)
-        # print("In value----->",opadvals)
-        # print("Investment value --->",invValue)
-
-       
-
-        serializer = TranSumRetrivesc2Serializer(addition, many=True,context={'request': request})
-        # serializer1 = TranSumRetrivesc2Serializer(opening, many=True,context={'request': request})
-
-        # data = serializer.data + serializer1.data
+        # serializer = TranSumRetrivesc2Serializer(addition, many=True,context={'request': request})
         return Response({'status':True,'msg':'done','opening':varop,'addition':varadd,'closing':closing})
 
-
 class RetHolding(APIView):
+
     def get(self,request,format=None):
         group = self.request.query_params.get('group')
         code = self.request.query_params.get('code')
         part = self.request.query_params.get('part')
-        # sp = self.request.query_params.get('sp')
         dfy = self.request.query_params.get('dfy')
         againstType = self.request.query_params.get('againstType')
-        # option = self.request.query_params.get('option')
-
-
+       
         try:
             start_fy=dfy[:4]+"-04-01"
             end_fy=dfy[5:]+"-03-31"
         except:
             raise Http404
 
-        # url = 'http://localhost:8000/scriptSum/?dfy=2022-2023&group=00091&code=00092&againstType=Shares&part=BHEL.NS'
-        # api_call = requests.get(url, headers={})
-        # print('api--------------------------->',api_call.json())
-        # op=api_call.json()['opening']
-        # print('opening----',op)
-        # closing=api_call.json()['closing']
-        # print("Closing---->",closing)
+        all_data = TranSum.objects.filter(group=group,code=code,againstType=againstType).values_list('rate','balQty','marketRate','part')
+        # print("Allll",all_data)
+        # return all_data
+        # return Response(all_data)
+        data_ls = []
+        for data in all_data:
+            dic = {}
+            dic['part']=data[3]
+            dic["holdQty"] =data[1]
+            dic["InvValue"] = (data[0]) * (data[1])
+            dic["mktvalue"] = (data[1]) * (data[2])
+            data_ls.append(dic)
+        print("dataaaaa---->",dic)
+        return Response({'status':True,'msg':'done','data':data_ls})
 
-        # context={
-        #     'holdQty':closing
-        # }
-         # --------------------- Bal Qty
-        # balQty = TranSum.objects.filter(group=group,code=code,againstType=againstType,part=part).values_list('rate','marketRate','balQty','marketValue')
-        # print("Bal qty------>",balQty)
-        # open=list(opening)
-        # varop=0
-        # for i in open:
-        #     w=int(i[0])
-        #     varop=varop+w 
-        # --------------------- Additions
-        # addition = TranSum.objects.filter(trDate__range=(start_fy,end_fy),group=group,code=code,againstType=againstType,part=part).values_list('qty')
-        # # print("Addition",addition)
-        # b=list(addition)
-        # varadd=0
-        # for i in b:
-        #     w=int(i[0])
-        #     varadd=varadd+w   
-        #  # ------------------------- Closing
-        # closing=varadd+varop
 
-         # ---------------------- Opening total=values(qty*rate)
-        # valuesop = TranSum.objects.filter(trDate__lt=start_fy,group=group,code=code,againstType=againstType,part=part).values_list('sVal')
-        # val=list(valuesop)
-        # opval=0
-        # for i in val:
-        #     w=i[0]
-        #     opval=opval+w
-        # print('Total opening values---',opval)
-
-            # ---------------------- Addition total=values(qty*rate)
-        # valuesad = TranSum.objects.filter(trDate__range=(start_fy,end_fy),group=group,code=code,againstType=againstType,part=part).values_list('sVal')
-        # val=list(valuesad)
-        # adval=0
-        # for i in val:
-        #     w=i[0]
-        #     adval=adval+w
-        # print('Total Addition values ---',adval)
-
-         # --------------------- Additions and Opening =Investment Values= values(rate*qty)
-        # try:
-        #     opadvals=opval+adval
-        #     avgRate=opadvals/closing
-        #     invValue=closing*avgRate
-        # except:
-        #     raise Http404
-        # print("Avgrate Rate---->",avgRate)
-        # print("Addition---->",varadd)
-        # print("opening---->",varop)
-        # print("Closing----->",closing)
-        # print("Values opeing--->",opval)
-        # print("Values addition--->",adval)
-        # print("In value----->",opadvals)
-        # print("Investment value --->",invValue)
-
-        # context={
-        #     'part':part,
-        #     'holdQty':closing,
-        #     'invValue':invValue,
-        # }
-        sc1 = TranSum.objects.filter(group=group,code=code,againstType=againstType)
-        serializer = RetInvSc1serializer(sc1,many=True)
-        return Response({'status':True,'msg':'done','data':serializer.data})
 
 # -------------------------- SaveMember api
 class SaveMember(APIView):

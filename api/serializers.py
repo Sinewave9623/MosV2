@@ -3,13 +3,14 @@ from attr import field, fields
 from rest_framework import serializers
 from .models import TranSum,CustomerMaster,MemberMaster
 from django.contrib.auth.hashers import make_password
+from django.db.models import Q,Sum
 
 
  # ---------------------- Saving API
 class SavePurchSerializer(serializers.ModelSerializer):
     class Meta:
         model=TranSum
-        fields=('trId','group','code','fy','againstType','sp','part','fmr','isinCode','trDate','qty','balQty','rate','sVal','sttCharges','otherCharges','noteAdd')
+        fields=('trId','group','code','fy','againstType','sp','part','fmr','isinCode','trDate','qty','rate','sVal','sttCharges','otherCharges','noteAdd','balQty','marketRate')
 # ------------------------ Retriveing API
 class RetTransSumSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,17 +19,23 @@ class RetTransSumSerializer(serializers.ModelSerializer):
 
 # ------------------------ Retrivng API Screen No2 (opening, addition, closing)
 class TranSumRetrivesc2Serializer(serializers.ModelSerializer):
-
+    # all1 = serializers.SerializerMethodField(required=False, read_only=True)
+   
     class Meta:
         model=TranSum
         fields=['trId','fmr','isinCode']
-
+    
+    
 
 class RetInvSc1serializer(serializers.ModelSerializer):
+    # sum = serializers.SerializerMethodField()
     class Meta:
         model=TranSum
-        fields=['trId','part','rate','balQty','marketRate','marketValue']
+        fields=['trId','part','marketValue']
 
+    # def get_sum(self,obj):
+    #     return TranSum.objects.values_list('rate','balQty','marketRate').aggregate(sum=Sum('balQty'))
+ 
 # ---------------------- Member saving API
 class SaveMemberSerializer(serializers.ModelSerializer):
     # member=serializers.StringRelatedField()
