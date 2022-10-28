@@ -1,9 +1,6 @@
-from asyncore import write
-from attr import field, fields
 from rest_framework import serializers
 from .models import TranSum,CustomerMaster,MemberMaster
 from django.contrib.auth.hashers import make_password
-from django.db.models import Q,Sum
 
 
  # ---------------------- Saving API
@@ -15,31 +12,22 @@ class SavePurchSerializer(serializers.ModelSerializer):
 class RetTransSumSerializer(serializers.ModelSerializer):
     class Meta:
         model=TranSum
-        fields=['trId','trDate','qty','rate','sVal','sttCharges','otherCharges','noteAdd']
+        fields=['trId','trDate','qty','balQty','rate','sVal','sttCharges','otherCharges','noteAdd']
 
 # ------------------------ Retrivng API Screen No2 (opening, addition, closing)
-class TranSumRetrivesc2Serializer(serializers.ModelSerializer):
-    # all1 = serializers.SerializerMethodField(required=False, read_only=True)
-   
-    class Meta:
-        model=TranSum
-        fields=['trId','fmr','isinCode']
+# class TranSumRetrivesc2Serializer(serializers.ModelSerializer):
+#     class Meta:
+#         model=TranSum
+#         fields=['trId','fmr','isinCode']
     
     
+# class RetInvSc1serializer(serializers.ModelSerializer):
+#     class Meta:
+#         model=TranSum
+#         fields=['trId','part','marketValue']
 
-class RetInvSc1serializer(serializers.ModelSerializer):
-    # sum = serializers.SerializerMethodField()
-    class Meta:
-        model=TranSum
-        fields=['trId','part','marketValue']
-
-    # def get_sum(self,obj):
-    #     return TranSum.objects.values_list('rate','balQty','marketRate').aggregate(sum=Sum('balQty'))
- 
 # ---------------------- Member saving API
 class SaveMemberSerializer(serializers.ModelSerializer):
-    # member=serializers.StringRelatedField()
-
     class Meta:
         model=MemberMaster
         fields=['code','name','email','phoneNumber']
@@ -73,6 +61,12 @@ class SavecustomerSerializer(serializers.ModelSerializer):
 
         validated_data.pop('password2') # add this
         return super(SavecustomerSerializer, self).create(validated_data)
+
+# ------------------------------- Sales Api Serializer (Sales)
+class RetTransSumSalesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=TranSum
+        fields=['trId','trDate','qty','rate','sVal','sttCharges','otherCharges','balQty']
 
 
 

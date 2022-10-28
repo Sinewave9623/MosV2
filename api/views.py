@@ -1,25 +1,25 @@
+from decimal import Decimal
 from .models import TranSum,MemberMaster,CustomerMaster
+from django.db.models import Sum
 from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
-from django.db.models import Q,Sum
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.http import Http404
 from rest_framework.views import APIView
-import pandas as pd
-import requests
 from .serializers import (SavePurchSerializer,RetTransSumSerializer,
-TranSumRetrivesc2Serializer,RetInvSc1serializer,SaveMemberSerializer,RetMemberSerializer,SavecustomerSerializer)
-
-
+SaveMemberSerializer,RetMemberSerializer,SavecustomerSerializer)
+import copy
 
 # -------------------- SavePurch API
-class SavePurch(APIView):
+class SavePurch(APIView):   
     def post(self, request, format=None):
-        serializer = SavePurchSerializer(data=request.data)
+        dic = copy.deepcopy(request.data)
+        dic["balQty"] = request.data["qty"]
+        serializer = SavePurchSerializer(data=dic)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save() 
             return Response({'status':True,'Message': 'You have successfully Created','data':serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -50,28 +50,35 @@ class RetTransSum(generics.ListAPIView):
              
              
 #   ------------------------- Update and Retrive API
-class MosRetrieveUpdate(generics.RetrieveUpdateAPIView):
+class RetTransSumUpdate(generics.RetrieveUpdateAPIView):
     queryset=TranSum.objects.all()
     serializer_class=RetTransSumSerializer
     def update(self, request, *args, **kwargs):
+       oldqty = self.request.query_params.get('oldqty')
+       balqty = self.request.query_params.get('balqty')
+    #    transid = self.request.query_params.get('transid')
+ 
+    #    print(oldqty,balqty,transid)
+       
+       dict =  copy.deepcopy(request.data)
+       dict["balQty"] = float(balqty) - float(oldqty) + float(dict["qty"])
+
+       print(dict)
+
        partial = kwargs.pop('partial', False)
        instance = self.get_object()
-       serializer = self.get_serializer(instance, data=request.data, partial=partial)
+       serializer = self.get_serializer(instance, data=dict, partial=partial)
        serializer.is_valid(raise_exception=True)
        self.perform_update(serializer)
+
        result = {
         "status": True,
-        "message": "Data successfully updated",
-        "data": serializer.data,
+        "msg": "Data successfully updated",
+        "data":dict
+        
        }
        return Response(result)
-    # # ---------------  Overriding Destroy Method
 
-    # def destroy(self, request, *args, **kwargs):
-    #     instance = self.get_object()
-    #     instance.delete()
-    #     return Response({'status':True,'Message': 'You have successfully Deleted'})
- 
  # Retrive API Screen No Two
  
 class RetriveAPISc2(APIView):
@@ -88,54 +95,100 @@ class RetriveAPISc2(APIView):
         except:
             raise Http404
         # --------------------- Opening
-        opening = TranSum.objects.filter(trDate__lt=start_fy,group=group,code=code,againstType=againstType,part=part).values_list('qty')
+        opening = TranSum.objects.filter(trDate__lt=start_fy,group=group,code=code,againstType=againstType,part=part).values_list('qty','sVal')
         open=list(opening)
         varop=0
+        varopval=0
         for i in open:
-            w=int(i[0])
-            varop=varop+w 
-        print(varop)  
+            op=int(i[0])
+            opval=int(i[1])
+            varop=varop+op
+            varopval=varopval+opval 
+        # print(varop) 
+        # print(varopval)  
         # --------------------- Additions
-        addition = TranSum.objects.filter(trDate__range=(start_fy,end_fy),group=group,code=code,againstType=againstType,part=part).values_list('qty')
+        addition = TranSum.objects.filter(trDate__range=(start_fy,end_fy),group=group,code=code,againstType=againstType,part=part).values_list('qty','sVal','marketRate','marketValue','isinCode','fmr')
         # print("Daaaa",addition)
         b=list(addition)
+        print("Daaaa",b)
         varadd=0
+        varaddval=0
         for i in b:
-            w=int(i[0])
-            varadd=varadd+w   
+            ad=int(i[0])
+            addval=int(i[1])
+            mktRate=float(i[2])
+            if i[3] == None:
+                i3=0
+            else:
+                i3=i[3]
+
+            mktvalue=Decimal(i3)
+            isinCode=i[4]
+            fmr=i[5]
+            varadd=varadd+ad
+            varaddval=varaddval+addval
+        # print(varadd)
+        # print(varaddval)  
         # ------------------------- Closing
         closing=varadd+varop
-        # serializer = TranSumRetrivesc2Serializer(addition, many=True,context={'request': request})
-        return Response({'status':True,'msg':'done','opening':varop,'addition':varadd,'closing':closing})
+        #-------------------------- opening and addition all values Sum
+        InvValue=varaddval+varopval
+        # print("InvValue",InvValue)
+
+        # -------------------------- Average Rate(total values / total qty)(InvValue/closing)
+        avgRate=InvValue / closing
+        avgRate=round(avgRate,2)
+        # print("avgRate----->",avgRate)
+        context={
+            'isinCode':isinCode,
+            'fmr':fmr,
+            'opening':varop,
+            'addition':varadd,
+            'sales':0,
+            'closing':closing,
+            'invValue':InvValue,
+            'avgRate':avgRate,
+            'marketRate':mktRate,
+            'mktvalue':mktvalue
+        }
+       
+        return Response({'status':True,'msg':'done','data':context})
 
 class RetHolding(APIView):
 
     def get(self,request,format=None):
         group = self.request.query_params.get('group')
         code = self.request.query_params.get('code')
-        part = self.request.query_params.get('part')
-        dfy = self.request.query_params.get('dfy')
+        # dfy = self.request.query_params.get('dfy')
         againstType = self.request.query_params.get('againstType')
        
-        try:
-            start_fy=dfy[:4]+"-04-01"
-            end_fy=dfy[5:]+"-03-31"
-        except:
-            raise Http404
+        # try:
+        #     start_fy=dfy[:4]+"-04-01"
+        #     end_fy=dfy[5:]+"-03-31"
+        # except:
+        #     raise Http404
 
         all_data = TranSum.objects.filter(group=group,code=code,againstType=againstType).values_list('rate','balQty','marketRate','part')
-        # print("Allll",all_data)
-        # return all_data
-        # return Response(all_data)
         data_ls = []
+        # print("Daaaaa",all_data)
         for data in all_data:
+
             dic = {}
             dic['part']=data[3]
             dic["holdQty"] =data[1]
-            dic["InvValue"] = (data[0]) * (data[1])
-            dic["mktvalue"] = (data[1]) * (data[2])
+            
+    
+            if data[1] == None:
+                data_1 = 0
+            else:
+                data_1 = data[1]
+            
+            dic["InvValue"] = (data[0])* (data_1)
+            dic["mktvalue"] = data_1 * (data[2])
+            # print("Dataaaa--->",dic)
+            
             data_ls.append(dic)
-        print("dataaaaa---->",dic)
+        # print("dataaaaa---->",dic)
         return Response({'status':True,'msg':'done','data':data_ls})
 
 
@@ -164,9 +217,10 @@ class MemberUpdadeDelete(generics.RetrieveUpdateDestroyAPIView):
 class SaveCustomer(APIView):
     def post(self, request, format=None):
         serializer = SavecustomerSerializer(data=request.data)
+       
         if serializer.is_valid():
             serializer.save()
-            return Response({'status':True,'Message': 'You have successfully Created','data':serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({'status':True,'msg': 'You have successfully Created','data':serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
  # -------------------------- RetCustomer API
