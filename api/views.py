@@ -107,7 +107,7 @@ class RetScriptSum(APIView):
         # print(varop) 
         # print(varopval)  
         # --------------------- Additions
-        addition = TranSum.objects.filter(trDate__range=(start_fy,end_fy),group=group,code=code,againstType=againstType,part=part).values_list('qty','sVal','marketRate','marketValue','isinCode','fmr','avgRate','marketValue')
+        addition = TranSum.objects.filter(trDate__range=(start_fy,end_fy),group=group,code=code,againstType=againstType,part=part).values_list('qty','sVal','marketRate','marketValue','isinCode','fmr','avgRate')
         # print("Daaaa",addition)
         b=list(addition)
         # print("Daaaa",b)
@@ -121,11 +121,9 @@ class RetScriptSum(APIView):
                 i3=0
             else:
                 i3=i[3]
-            mktvalue=Decimal(i3)
-            i[4] # isin Code
-            i[5]
-            i[6]
-            i[7]
+            mktvalue=float(i3)
+           
+    
 
             
             varadd=varadd+ad
@@ -166,8 +164,8 @@ class RetScriptSum(APIView):
             'closing':closing,
             'invValue':InvValue,
             'avgRate':avgRate,
-            'marketRate':i[6],
-            'mktvalue':i[7]
+            'marketRate':mktRate,
+            'mktvalue':mktvalue
         }
        
         return Response({'status':True,'msg':'done','data':context})
