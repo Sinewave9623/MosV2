@@ -5,7 +5,7 @@ urlpatterns = [
     path('purchTransDet/',views.SavePurch.as_view()),
     path('purchTransSum/',views.RetTransSum.as_view()),
     path('RetTransSumUpdate/<int:pk>',views.RetTransSumUpdate.as_view()),
-    path('scriptSum/',views.RetriveAPISc2.as_view()),
+    path('scriptSum/',views.RetScriptSum.as_view()),
     path('holdings/',views.RetHolding.as_view()),
     path('saveMember/',views.SaveMember.as_view()),
     path('retMember/',views.RetMember.as_view()),

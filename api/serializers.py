@@ -30,13 +30,13 @@ class RetTransSumSerializer(serializers.ModelSerializer):
 class SaveMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model=MemberMaster
-        fields=['code','name','email','phoneNumber']
+        fields=['group','name','emailId','contactNo']
 
 # # -----------------------RetMember api
 class RetMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model=MemberMaster
-        fields=['memberId','name','email','phoneNumber']
+        fields=['memberId','name','emailId','contactNo']
 
 class SavecustomerSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={"input_type": "password"}, write_only=True)

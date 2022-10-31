@@ -81,7 +81,7 @@ class RetTransSumUpdate(generics.RetrieveUpdateAPIView):
 
  # Retrive API Screen No Two
  
-class RetriveAPISc2(APIView):
+class RetScriptSum(APIView):
     def get(self, request, format=None):
         # ------------ fetching parameter in  Url
         group = self.request.query_params.get('group')
@@ -133,10 +133,15 @@ class RetriveAPISc2(APIView):
         closing=varadd+varop
         #-------------------------- opening and addition all values Sum
         InvValue=varaddval+varopval
-        InvValue=Decimal(InvValue)
+       
+        InvValue=float(InvValue)
+        # InvValue1=round(InvValue,2)
+        
+       
+        
        
 
-        # print("InvValue",InvValue)
+        # print("InvValue",InvValue1,type(InvValue1))
 
         # -------------------------- Average Rate(total values / total qty)(InvValue/closing)
         try:
@@ -144,6 +149,8 @@ class RetriveAPISc2(APIView):
             avgRate=round(avgRate,2)
         except ZeroDivisionError:
             avgRate=0
+        # print('Avg',avgRate,type(avgRate))
+       
 
         # print("avgRate----->",avgRate)
         context={
@@ -216,9 +223,12 @@ class SaveMember(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # # -------------------------- RetMember API
-class RetMember(generics.ListAPIView):
-    queryset=MemberMaster.objects.all()
-    serializer_class=RetMemberSerializer
+class RetMember(APIView):
+    def get(self, request, format=None):
+        group = self.request.query_params.get('group')
+        member=MemberMaster.objects.filter(group=group)
+        serializer=RetMemberSerializer(member,many=True)
+        return Response({'status':True,'msg':'done','data':serializer.data})
 
 # ---------------------------- updated delete api mrmber
 class MemberUpdadeDelete(generics.RetrieveUpdateDestroyAPIView):
