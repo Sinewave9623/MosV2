@@ -95,7 +95,7 @@ class RetScriptSum(APIView):
         except:
             raise Http404
         # --------------------- Opening
-        opening = TranSum.objects.filter(trDate__lt=start_fy,group=group,code=code,againstType=againstType,part=part).values_list('qty','sVal')
+        opening = TranSum.objects.filter(trDate__lt=start_fy,group=group,code=code,againstType=againstType,part=part).values_list('qty','sVal','isinCode','fmr')
         open=list(opening)
         varop=0
         varopval=0
