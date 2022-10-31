@@ -15,10 +15,10 @@ class RetTransSumSerializer(serializers.ModelSerializer):
         fields=['trId','trDate','qty','balQty','rate','sVal','sttCharges','otherCharges','noteAdd']
 
 # ------------------------ Retrivng API Screen No2 (opening, addition, closing)
-# class TranSumRetrivesc2Serializer(serializers.ModelSerializer):
-#     class Meta:
-#         model=TranSum
-#         fields=['trId','fmr','isinCode']
+class TranSumRetrivesc2Serializer(serializers.ModelSerializer):
+    class Meta:
+        model=TranSum
+        fields=['fmr','isinCode']
     
     
 # class RetInvSc1serializer(serializers.ModelSerializer):
@@ -42,7 +42,7 @@ class SavecustomerSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={"input_type": "password"}, write_only=True)
     class Meta:
         model=CustomerMaster
-        fields=['userId','username','firstName','lastName','emailId','contactNo','dob','photo','address','password','password2']
+        fields=['userId','username','group','firstName','lastName','emailId','contactNo','dob','photo','address','active','companyCode','sw_CustomerId','registration_Date','valid_Date','password','password2']
       
         extra_kwargs = {
             'password': {'write_only':True}

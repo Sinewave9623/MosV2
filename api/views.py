@@ -122,7 +122,7 @@ class RetScriptSum(APIView):
             else:
                 i3=i[3]
             mktvalue=float(i3)
-            
+
             global isinCode
             isinCode=i[4]
            
@@ -166,7 +166,6 @@ class RetScriptSum(APIView):
             'marketRate':mktRate,
             'mktvalue':mktvalue
         }
-       
         return Response({'status':True,'msg':'done','data':context})
 
 class RetHolding(APIView):
@@ -248,9 +247,15 @@ class SaveCustomer(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
  # -------------------------- RetCustomer API
-class RetCustomer(generics.ListAPIView):
-    queryset=CustomerMaster.objects.all()
+class RetCustomer(APIView):
+    # queryset=CustomerMaster.objects.all()
     serializer_class=SavecustomerSerializer
+    def get(self, request, format=None):
+        username = self.request.query_params.get('username')
+        customer=CustomerMaster.objects.filter(username=username)
+        serializer=SavecustomerSerializer(customer,many=True)
+        return Response({'status':True,'msg':'done','data':serializer.data})
+
     
 # ---------------------------- updated delete api Customer
 class CustomerUpdadeDelete(generics.RetrieveUpdateDestroyAPIView):
