@@ -154,14 +154,16 @@ class RetScriptSum(APIView):
 
         # print("avgRate----->",avgRate)
         context={
+            # 'isinCode':isinCode,
+            # 'fmr':fmr,
             'opening':varop,
             'addition':varadd,
             'sales':0,
             'closing':closing,
             'invValue':InvValue,
             'avgRate':avgRate,
-            'marketRate':mktRate,
-            'mktvalue':mktvalue
+            # 'marketRate':mktRate,
+            # 'mktvalue':mktvalue
         }
        
         return Response({'status':True,'msg':'done','data':context})
