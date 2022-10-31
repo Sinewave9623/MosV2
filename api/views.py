@@ -154,8 +154,6 @@ class RetScriptSum(APIView):
 
         # print("avgRate----->",avgRate)
         context={
-            'isinCode':isinCode,
-            'fmr':fmr,
             'opening':varop,
             'addition':varadd,
             'sales':0,
