@@ -122,7 +122,10 @@ class RetScriptSum(APIView):
             else:
                 i3=i[3]
             mktvalue=float(i3)
+            
+            global isinCode
             isinCode=i[4]
+           
             fmr=i[5]
 
         
@@ -150,6 +153,7 @@ class RetScriptSum(APIView):
        
 
         # print("avgRate----->",avgRate)
+           
         context={
             'isinCode':isinCode,
             'fmr':fmr,
