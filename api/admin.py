@@ -6,11 +6,11 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 # admin.site.register(TranSum)
 
 class UserAdmin(BaseUserAdmin):
-    list_display = ('userId','username', 'firstName','lastName','email','phoneNumber','dob',)
-    list_filter =('username', 'firstName','lastName','email','phoneNumber','dob',)
+    list_display = ('userId','username','group','firstName','lastName','emailId','contactNo','dob','address','active','companyCode','sw_CustomerId','registration_Date','valid_Date')
+    list_filter =('username','group','firstName','lastName','emailId','contactNo','dob','address')
     fieldsets = (
         ('User Credentials', {'fields': ('username','password')}),
-        ('Personal info', {'fields': ('firstName','lastName','email','phoneNumber','dob',)}),
+        ('Personal info', {'fields': ('firstName','lastName','emailId','contactNo','dob',)}),
         ('Permissions', {'fields': ('is_active','is_staff')}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
@@ -18,11 +18,11 @@ class UserAdmin(BaseUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'firstName','lastName','email','phoneNumber','dob', 'password1', 'password2'),
+            'fields': ('username', 'firstName','lastName','emailId','contactNo','dob', 'password1', 'password2'),
         }),
     )
-    search_fields = ('email',)
-    ordering = ('email',)
+    search_fields = ('emailId',)
+    ordering = ('emailId',)
     filter_horizontal = ()
 
 admin.site.register(CustomerMaster, UserAdmin)
@@ -34,7 +34,7 @@ admin.site.unregister(Group)
 
 @admin.register(MemberMaster)
 class MemberMasterAdmin(admin.ModelAdmin):
-    list_display=['memberId','group','code','name','email','phoneNumber']
+    list_display=['memberId','group','code','name','emailId','contactNo']
 
 
 

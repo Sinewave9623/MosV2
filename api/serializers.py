@@ -42,7 +42,7 @@ class SavecustomerSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={"input_type": "password"}, write_only=True)
     class Meta:
         model=CustomerMaster
-        fields=['userId','username','firstName','lastName','email','phoneNumber','dob','photo','address','password','password2']
+        fields=['userId','username','firstName','lastName','emailId','contactNo','dob','photo','address','password','password2']
       
         extra_kwargs = {
             'password': {'write_only':True}
@@ -66,7 +66,7 @@ class SavecustomerSerializer(serializers.ModelSerializer):
 class RetTransSumSalesSerializer(serializers.ModelSerializer):
     class Meta:
         model=TranSum
-        fields=['trId','trDate','qty','rate','sVal','sttCharges','otherCharges','balQty']
+        fields=['trId','trDate','qty','rate','sVal','balQty']
 
 
 

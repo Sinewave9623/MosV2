@@ -63,7 +63,7 @@ class RetTransSumUpdate(generics.RetrieveUpdateAPIView):
        dict =  copy.deepcopy(request.data)
        dict["balQty"] = float(balqty) - float(oldqty) + float(dict["qty"])
 
-       print(dict)
+    #    print(dict)
 
        partial = kwargs.pop('partial', False)
        instance = self.get_object()
@@ -110,7 +110,7 @@ class RetriveAPISc2(APIView):
         addition = TranSum.objects.filter(trDate__range=(start_fy,end_fy),group=group,code=code,againstType=againstType,part=part).values_list('qty','sVal','marketRate','marketValue','isinCode','fmr')
         # print("Daaaa",addition)
         b=list(addition)
-        print("Daaaa",b)
+        # print("Daaaa",b)
         varadd=0
         varaddval=0
         for i in b:
@@ -133,11 +133,18 @@ class RetriveAPISc2(APIView):
         closing=varadd+varop
         #-------------------------- opening and addition all values Sum
         InvValue=varaddval+varopval
+        InvValue=Decimal(InvValue)
+       
+
         # print("InvValue",InvValue)
 
         # -------------------------- Average Rate(total values / total qty)(InvValue/closing)
-        avgRate=InvValue / closing
-        avgRate=round(avgRate,2)
+        try:
+            avgRate=InvValue / closing
+            avgRate=round(avgRate,2)
+        except ZeroDivisionError:
+            avgRate=0
+
         # print("avgRate----->",avgRate)
         context={
             'isinCode':isinCode,
@@ -175,16 +182,22 @@ class RetHolding(APIView):
 
             dic = {}
             dic['part']=data[3]
-            dic["holdQty"] =data[1]
+            dic["holdQty"] =int(data[1])
             
     
             if data[1] == None:
                 data_1 = 0
             else:
                 data_1 = data[1]
+
+            if data[2]==None:
+                data_2=0
+            else:
+                data_2=data[2]
+
             
             dic["InvValue"] = (data[0])* (data_1)
-            dic["mktvalue"] = data_1 * (data[2])
+            dic["mktvalue"] = data_1 * (data_2)
             # print("Dataaaa--->",dic)
             
             data_ls.append(dic)
