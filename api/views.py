@@ -122,10 +122,10 @@ class RetScriptSum(APIView):
             else:
                 i3=i[3]
             mktvalue=float(i3)
-           
-    
+            isinCode=i[4]
+            fmr=i[5]
 
-            
+        
             varadd=varadd+ad
             varaddval=varaddval+addval
         # print(varadd)
@@ -137,15 +137,10 @@ class RetScriptSum(APIView):
        
         InvValue=float(InvValue)
         # InvValue1=round(InvValue,2)
-        
-       
-        
-       
 
         # print("InvValue",InvValue1,type(InvValue1))
 
         # -------------------------- Average Rate(total values / total qty)(InvValue/closing)
-       
         try:
             avgRate=InvValue / closing
             avgRate=round(avgRate,2)
@@ -156,8 +151,8 @@ class RetScriptSum(APIView):
 
         # print("avgRate----->",avgRate)
         context={
-            'isinCode':i[4],
-            'fmr':i[5],
+            'isinCode':isinCode,
+            'fmr':fmr,
             'opening':varop,
             'addition':varadd,
             'sales':0,
