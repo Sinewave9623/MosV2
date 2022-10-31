@@ -107,7 +107,7 @@ class RetScriptSum(APIView):
         # print(varop) 
         # print(varopval)  
         # --------------------- Additions
-        addition = TranSum.objects.filter(trDate__range=(start_fy,end_fy),group=group,code=code,againstType=againstType,part=part).values_list('qty','sVal','marketRate','marketValue','isinCode','fmr')
+        addition = TranSum.objects.filter(trDate__range=(start_fy,end_fy),group=group,code=code,againstType=againstType,part=part).values_list('qty','sVal','marketRate','marketValue','isinCode','fmr','avgRate','marketValue')
         # print("Daaaa",addition)
         b=list(addition)
         # print("Daaaa",b)
@@ -121,10 +121,13 @@ class RetScriptSum(APIView):
                 i3=0
             else:
                 i3=i[3]
-
             mktvalue=Decimal(i3)
-            isinCode=i[4]
-            fmr=i[5]
+            i[4] # isin Code
+            i[5]
+            i[6]
+            i[7]
+
+            
             varadd=varadd+ad
             varaddval=varaddval+addval
         # print(varadd)
@@ -144,6 +147,7 @@ class RetScriptSum(APIView):
         # print("InvValue",InvValue1,type(InvValue1))
 
         # -------------------------- Average Rate(total values / total qty)(InvValue/closing)
+       
         try:
             avgRate=InvValue / closing
             avgRate=round(avgRate,2)
@@ -154,16 +158,16 @@ class RetScriptSum(APIView):
 
         # print("avgRate----->",avgRate)
         context={
-            # 'isinCode':isinCode,
-            # 'fmr':fmr,
+            'isinCode':i[4],
+            'fmr':i[5],
             'opening':varop,
             'addition':varadd,
             'sales':0,
             'closing':closing,
             'invValue':InvValue,
             'avgRate':avgRate,
-            # 'marketRate':mktRate,
-            # 'mktvalue':mktvalue
+            'marketRate':i[6],
+            'mktvalue':i[7]
         }
        
         return Response({'status':True,'msg':'done','data':context})
