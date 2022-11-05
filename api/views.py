@@ -261,3 +261,7 @@ class RetCustomer(APIView):
 class CustomerUpdadeDelete(generics.RetrieveUpdateDestroyAPIView):
     queryset=CustomerMaster.objects.all()
     serializer_class=SavecustomerSerializer
+    
+    
+ #Welcome Sinewave
+# Wel Come All
